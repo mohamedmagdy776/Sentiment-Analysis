@@ -1,0 +1,308 @@
+{
+  "name": "Sentiment Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Review ",
+        "formDescription": "This form is for providing your review for our restaurant ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Phone Number ",
+              "fieldType": "number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Review",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Date",
+              "fieldType": "date",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -480,
+        -192
+      ],
+      "id": "fb81849b-3303-49bc-9f65-a0941083b924",
+      "name": "On form submission",
+      "webhookId": "ca444d1d-648c-4b0d-a301-a1c6e68dd194"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This is the customer review: {{ $json.Review }}",
+        "options": {
+          "systemMessage": "=You are an expert in sentiment analysis. When I give you a customer review,\nyou must respond in EXACTLY two lines with NO other text:\nLine 1: Only ONE word - either Positive, Negative, or Neutral\nLine 2: Only the confidence percentage (e.g., 95%)\n\nRULES:\n- Count positive statements and negative statements separately\n- If positive count > negative count → Positive\n- If negative count > positive count → Negative  \n- If equal count → Neutral\n- NEVER use \"Mixed\" or any other word\n- Calculate confidence as: \n(number of positive statements / total statements) × 100"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -272,
+        -192
+      ],
+      "id": "a9fd998a-43a4-4c6c-ac07-2dca70825632",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        16
+      ],
+      "id": "d07c0c9e-3de9-46cc-a467-a4fef6c152c5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "D5VwW9FhMG7h3tmy",
+          "name": "OpenAI Account 8"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.submittedAt }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -160,
+        16
+      ],
+      "id": "7129c9ea-d638-4cbe-9c69-d56125463df3",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = items[0].json.output; // جلب النص من الـ AI Agent\nconst lines = input.split('\\n').filter(line => line.trim() !== ''); // تقسيم النص عند كل سطر جديد\n\nreturn {\n  sentiment: lines[0] ? lines[0].trim() : \"N/A\",\n  percentage: lines[1] ? lines[1].trim() : \"N/A\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -192
+      ],
+      "id": "501517e4-8ea6-4ad0-b0b0-0afe9230ab0a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YzU2vUIpsMmwJHlvXkVLTAgaLrP92bAe3jy2C_Wz41Q",
+          "mode": "list",
+          "cachedResultName": "Sentiment Analysis ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YzU2vUIpsMmwJHlvXkVLTAgaLrP92bAe3jy2C_Wz41Q/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YzU2vUIpsMmwJHlvXkVLTAgaLrP92bAe3jy2C_Wz41Q/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name ": "={{ $('On form submission').item.json['Name '] }}",
+            "Phone Number ": "={{ $('On form submission').item.json['Phone Number '] }}",
+            "Review": "={{ $('On form submission').item.json.Review }}",
+            "Email": "={{ $('On form submission').item.json['Email '] }}",
+            "Date ": "={{ $('On form submission').item.json.Date }}",
+            "Review Result": "={{ $json.sentiment }}",
+            "Percentage": "={{ $json.percentage }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name ",
+              "displayName": "Name ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone Number ",
+              "displayName": "Phone Number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review",
+              "displayName": "Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date ",
+              "displayName": "Date ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Review Result",
+              "displayName": "Review Result",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Percentage",
+              "displayName": "Percentage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        -192
+      ],
+      "id": "1b01169e-1549-48bf-9ed3-8b414c572260",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YxmiyDKwSUAefV7p",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "7930f045-dfe6-4668-b273-1842e1154c4c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1d52e26502ab362c0b60f91c6d37756d0d545fbe1c12904239c10acad5a587bd"
+  },
+  "id": "QZqqBtz78lnFO6IP96nAU",
+  "tags": []
+}
