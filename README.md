@@ -113,8 +113,14 @@ This project demonstrates how **AI + Automation** can be combined using tools li
 It transforms raw customer feedback into actionable insights automatically.
 
 ---
+## 🎬 Demo
 
-## 👨‍💻 Author
+https://github.com/mohamedmagdy776/Sentiment-Analysis/releases/download/v1.0/Video.mp4
 
-**Eng Mohamed Magdy Elghandour**  
+---
+
+## 👤 Author
+
+**Eng Mohamed Magdy Elghandour**
 AI Automation Engineer
+## 👨‍💻 Author
