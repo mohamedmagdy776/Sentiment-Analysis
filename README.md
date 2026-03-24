@@ -123,4 +123,3 @@ https://github.com/mohamedmagdy776/Sentiment-Analysis/releases/download/v1.0/Vid
 
 **Eng Mohamed Magdy Elghandour**
 AI Automation Engineer
-## 👨‍💻 Author
